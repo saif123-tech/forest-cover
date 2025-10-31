@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forest Cover Prediction</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c5e1a;
+            --primary-light: #4c8442;
+            --secondary: #8fbc8f;
+            --accent: #f39c12;
+            --light: #f8fbf8;
+            --dark: #243c24;
+            --gray: #e8efe8;
+            --success: #4caf50;
+            --error: #f44336;
+            --warning: #ff9800;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--light) 0%, var(--gray) 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(120deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--gray);
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-title i {
+            margin-right: 10px;
+            color: var(--primary-light);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--gray);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="number"]:focus {
+            border-color: var(--primary-light);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44, 94, 26, 0.1);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 16px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button i {
+            margin-right: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(to right, var(--primary-light) 0%, var(--primary) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 94, 26, 0.2);
+        }
+        
+        .btn-secondary {
+            background: var(--gray);
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            background: #dfe8df;
+            transform: translateY(-2px);
+        }
+        
+        .note {
+            background-color: #fff9e6;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            border-radius: 4px;
+            margin: 25px 0;
+            font-size: 0.95rem;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .success {
+            background-color: #edf7ed;
+            border: 1px solid #c5e0c5;
+            color: #1e4620;
+        }
+        
+        .error {
+            background-color: #fdeaea;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .loading {
+            text-align: center;
+            color: var(--dark);
+            background-color: #f0f7f0;
+            border: 1px solid #d0e0d0;
+        }
+        
+        .feature-importance {
+            margin-top: 40px;
+        }
+        
+        .importance-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            background: var(--gray);
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: transform 0.2s ease;
+        }
+        
+        .importance-bar:hover {
+            transform: translateX(5px);
+            background: #e1eadf;
+        }
+        
+        .importance-label {
+            width: 280px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .importance-value {
+            flex: 1;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .importance-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-light) 0%, var(--primary) 100%);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+        
+        .importance-percentage {
+            position: absolute;
+            right: 10px;
+            top: 0;
+            font-size: 0.8rem;
+            color: var(--dark);
+            line-height: 20px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--dark);
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .importance-label {
+                width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-tree"></i> Forest Cover Type Prediction</h1>
+            <p>Predict forest cover types based on cartographic variables</p>
+        </div>
+        
+        <div class="content">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-mountain"></i> Topographical Features</h2>
+                
+                <div class="grid">
+                    <div class="form-group">
+                        <label for="elevation">Elevation (meters):</label>
+                        <input type="number" id="elevation" step="0.01" placeholder="e.g., 2596">
+                    </div>
+                    <div class="form-group">
+                        <label for="aspect">Aspect (degrees):</label>
+                        <input type="number" id="aspect" step="0.01" placeholder="e.g., 51">
+                    </div>
+                    <div class="form-group">
+                        <label for="slope">Slope (degrees):</label>
+                        <input type="number" id="slope" step="0.01" placeholder="e.g., 3">
+                    </div>
+                    <div class="form-group">
+                        <label for="horizontal_distance_hydrology">Horizontal Distance to Hydrology (meters):</label>
+                        <input type="number" id="horizontal_distance_hydrology" placeholder="e.g., 258">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-water"></i> Hydrological Features</h2>
+                
+                <div class="grid">
+                    <div class="form-group">
+                        <label for="vertical_distance_hydrology">Vertical Distance to Hydrology (meters):</label>
+                        <input type="number" id="vertical_distance_hydrology" placeholder="e.g., 0">
+                    </div>
+                    <div class="form-group">
+                        <label for="horizontal_distance_roadways">Horizontal Distance to Roadways (meters):</label>
+                        <input type="number" id="horizontal_distance_roadways" placeholder="e.g., 510">
+                    </div>
+                    <div class="form-group">
+                        <label for="hillshade_9am">Hillshade at 9am:</label>
+                        <input type="number" id="hillshade_9am" placeholder="e.g., 221">
+                    </div>
+                    <div class="form-group">
+                        <label for="hillshade_noon">Hillshade at Noon:</label>
+                        <input type="number" id="hillshade_noon" placeholder="e.g., 232">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-sun"></i> Additional Features</h2>
+                
+                <div class="grid">
+                    <div class="form-group">
+                        <label for="hillshade_3pm">Hillshade at 3pm:</label>
+                        <input type="number" id="hillshade_3pm" placeholder="e.g., 148">
+                    </div>
+                    <div class="form-group">
+                        <label for="horizontal_distance_fire">Horizontal Distance to Fire Points (meters):</label>
+                        <input type="number" id="horizontal_distance_fire" placeholder="e.g., 6279">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="note">
+                <i class="fas fa-info-circle"></i> <strong>Note:</strong> This form includes the main features. For a complete prediction, all 54 features are needed. Use the sample data button for testing.
+            </div>
+            
+            <div class="buttons">
+                <button class="btn-primary" onclick="predictCoverType()">
+                    <i class="fas fa-brain"></i> Predict Cover Type
+                </button>
+                <button class="btn-secondary" onclick="loadSampleData()">
+                    <i class="fas fa-vial"></i> Load Sample Data
+                </button>
+                <button class="btn-secondary" onclick="resetForm()">
+                    <i class="fas fa-undo"></i> Reset Form
+                </button>
+            </div>
+            
+            <div class="card feature-importance" id="featureImportanceContainer" style="display:none;">
+                <h2 class="card-title"><i class="fas fa-chart-line"></i> Top Feature Importances</h2>
+                <div id="importanceBars"></div>
+            </div>
+            
+            <div id="result" class="result"></div>
+            
+            <div class="card feature-importance">
+                <h2 class="card-title"><i class="fas fa-chart-line"></i> Top Feature Importances</h2>
+                
+                <div class="importance-bar">
+                    <div class="importance-label">Elevation</div>
+                    <div class="importance-value">
+                        <div class="importance-fill" style="width: 100%"></div>
+                        <span class="importance-percentage">100%</span>
+                    </div>
+                </div>
+                <div class="importance-bar">
+                    <div class="importance-label">Horizontal Distance to Roadways</div>
+                    <div class="importance-value">
+                        <div class="importance-fill" style="width: 48%"></div>
+                        <span class="importance-percentage">48%</span>
+                    </div>
+                </div>
+                <div class="importance-bar">
+                    <div class="importance-label">Horizontal Distance to Fire Points</div>
+                    <div class="importance-value">
+                        <div class="importance-fill" style="width: 46%"></div>
+                        <span class="importance-percentage">46%</span>
+                    </div>
+                </div>
+                <div class="importance-bar">
+                    <div class="importance-label">Horizontal Distance to Hydrology</div>
+                    <div class="importance-value">
+                        <div class="importance-fill" style="width: 25%"></div>
+                        <span class="importance-percentage">25%</span>
+                    </div>
+                </div>
+                <div class="importance-bar">
+                    <div class="importance-label">Vertical Distance to Hydrology</div>
+                    <div class="importance-value">
+                        <div class="importance-fill" style="width: 24%"></div>
+                        <span class="importance-percentage">24%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Forest Cover Type Prediction System © 2023</p>
+        </div>
+    </div>
+
+    <script>
+        async function predictCoverType() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result loading';
+            resultDiv.innerHTML = 'Making prediction...';
+
+            // Collect all input values
+            const features = [];
+            const inputs = document.querySelectorAll('input[type="number"]');
+
+            // Add the 10 main features
+            features.push(parseFloat(document.getElementById('elevation').value) || 0);
+            features.push(parseFloat(document.getElementById('aspect').value) || 0);
+            features.push(parseFloat(document.getElementById('slope').value) || 0);
+            features.push(parseFloat(document.getElementById('horizontal_distance_hydrology').value) || 0);
+            features.push(parseFloat(document.getElementById('vertical_distance_hydrology').value) || 0);
+            features.push(parseFloat(document.getElementById('horizontal_distance_roadways').value) || 0);
+            features.push(parseFloat(document.getElementById('hillshade_9am').value) || 0);
+            features.push(parseFloat(document.getElementById('hillshade_noon').value) || 0);
+            features.push(parseFloat(document.getElementById('hillshade_3pm').value) || 0);
+            features.push(parseFloat(document.getElementById('horizontal_distance_fire').value) || 0);
+
+            // Add wilderness areas (one-hot encoded, default to first)
+            features.push(1, 0, 0, 0); // Wilderness_Area_0 to 3
+
+            // Add soil types (40 soil types, default to first)
+            for (let i = 0; i < 40; i++) {
+                features.push(i === 0 ? 1 : 0);
+            }
+
+            try {
+                const response = await fetch('http://localhost:8000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ features: features })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h3>Prediction Result</h3>
+                        <p><strong>Predicted Cover Type:</strong> ${data.prediction} (${data.cover_type_name})</p>
+                        <p><strong>Confidence:</strong> ${data.confidence}%</p>
+                    `;
+                    if (data.feature_importance && data.feature_names) {
+                        updateFeatureImportance(data.feature_importance, data.feature_names);
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<p>Error: ${data.detail}</p>`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+
+        function loadSampleData() {
+            // Sample data for testing
+            const samples = [
+                { elevation: 2596, aspect: 51, slope: 3, horizontal_distance_hydrology: 258, vertical_distance_hydrology: 0, horizontal_distance_roadways: 510, hillshade_9am: 221, hillshade_noon: 232, hillshade_3pm: 148, horizontal_distance_fire: 6279 },
+                { elevation: 3000, aspect: 45, slope: 5, horizontal_distance_hydrology: 300, vertical_distance_hydrology: 10, horizontal_distance_roadways: 600, hillshade_9am: 200, hillshade_noon: 210, hillshade_3pm: 130, horizontal_distance_fire: 5000 },
+                { elevation: 2800, aspect: 60, slope: 4, horizontal_distance_hydrology: 270, vertical_distance_hydrology: 5, horizontal_distance_roadways: 550, hillshade_9am: 215, hillshade_noon: 225, hillshade_3pm: 140, horizontal_distance_fire: 6000 },
+                { elevation: 2500, aspect: 40, slope: 2, horizontal_distance_hydrology: 240, vertical_distance_hydrology: 3, horizontal_distance_roadways: 480, hillshade_9am: 230, hillshade_noon: 240, hillshade_3pm: 150, horizontal_distance_fire: 6200 }
+            ];
+            const sample = samples[Math.floor(Math.random() * samples.length)];
+            document.getElementById('elevation').value = sample.elevation;
+            document.getElementById('aspect').value = sample.aspect;
+            document.getElementById('slope').value = sample.slope;
+            document.getElementById('horizontal_distance_hydrology').value = sample.horizontal_distance_hydrology;
+            document.getElementById('vertical_distance_hydrology').value = sample.vertical_distance_hydrology;
+            document.getElementById('horizontal_distance_roadways').value = sample.horizontal_distance_roadways;
+            document.getElementById('hillshade_9am').value = sample.hillshade_9am;
+            document.getElementById('hillshade_noon').value = sample.hillshade_noon;
+            document.getElementById('hillshade_3pm').value = sample.hillshade_3pm;
+            document.getElementById('horizontal_distance_fire').value = sample.horizontal_distance_fire;
+        }
+
+        function resetForm() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => input.value = '');
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'none';
+            resultDiv.innerHTML = '';
+            resultDiv.className = 'result';
+        }
+    </script>
+</body>
+</html>
